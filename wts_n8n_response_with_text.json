@@ -1,0 +1,285 @@
+{
+  "name": "wts-n8n-response_with_text",
+  "nodes": [
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=session_{{ $('Grava variável \"text\"').item.json.sessionId }}"
+      },
+      "id": "fc6d35ec-3c96-49a0-8dd5-8432ad4ab636",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        760,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "assistant",
+        "assistantId": {
+          "__rl": true,
+          "value": "asst_Py2foyQ39ZmgnAA7PhgwDsjb",
+          "mode": "list",
+          "cachedResultName": "Bot-atendimento-padrão"
+        },
+        "prompt": "define",
+        "text": "={{ JSON.stringify($json.text) }}",
+        "options": {}
+      },
+      "id": "1658e6c1-670c-4aad-8902-e353286ff479",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        400,
+        0
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "Q70t9bqYniSFd1Jn",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "84a9efaf-a230-4e7d-bae4-5bbaf050fd3f",
+        "options": {}
+      },
+      "id": "146ad03a-3862-481b-a64b-bfaf0ca36c52",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "84a9efaf-a230-4e7d-bae4-5bbaf050fd3f"
+    },
+    {
+      "parameters": {
+        "resource": "session",
+        "operation": "sendTextBySessionid",
+        "textMessage": "={{ $json.output }}",
+        "sessionId": "={{ $('Grava variável \"text\"').item.json.sessionId }}"
+      },
+      "type": "n8n-nodes-wts.wtsChat",
+      "typeVersion": 1,
+      "position": [
+        760,
+        0
+      ],
+      "id": "94de4e66-23be-4c84-ad12-5e3cac9bea1e",
+      "name": "Envia mensagem",
+      "credentials": {
+        "wtsApi": {
+          "id": "Wkro2B6j6AT6vJkx",
+          "name": "WTS account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Nesta função você consegue listar as equipes disponíveis para transferência.",
+        "url": "=https://api.helena.run/core/v1/department",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue"
+            }
+          ]
+        }
+      },
+      "id": "5cdd88c3-57db-47ca-a5e5-2ae66df4c993",
+      "name": "Busca equipes",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Setores para transferência.\n\nAlgumas diretrizes:\n\n-Seja rápido e objetivo ao responder perguntas frequentes, buscando entender detalhadamente o problema do contato.\n-Explique de maneira simples qualquer processo técnico de baixa complexidade.\n-Demonstre paciência ao lidar com questões delicadas ou frustrações dos clientes.\n-Utilize um tom positivo e otimista, mesmo ao comunicar informações difíceis ou negativas.\n-Não solicite dados do contato como (e-mail, Id, numeros de protocolo, documentos).",
+        "method": "PUT",
+        "url": "=https://api.helena.run/chat/v1/session/{{ $('Webhook').item.json.body.sessionId }}/transfer",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"type\": \"DEPARTMENT\",\n  \"newDepartmentId\": \"{departmentId}\"\n}",
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "departmentId",
+              "description": "Código UUID da equipe",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "9beac6d9-cd8c-4fdb-9d3a-95fb486e1ad7",
+      "name": "Transferir",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "toolDescription": "Função para encerrar o atendimento.",
+        "method": "PUT",
+        "url": "=https://api.helena.run/chat/v1/session/{{ $('Webhook').item.json.body.sessionId }}/complete",
+        "sendHeaders": true,
+        "parametersHeaders": {
+          "values": [
+            {
+              "name": "Authorization",
+              "valueProvider": "fieldValue"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"reactivateOnNewMessage\": true\n}"
+      },
+      "id": "d93ca66f-60d3-4968-822c-257171a52bfc",
+      "name": "Concluir",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        600,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6f57fd7d-92da-48c1-8a97-532b7f434888",
+              "name": "text",
+              "value": "={{ $json.body.lastMessagesAggregated }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "7360700f-d4b4-4a7a-8133-8a9b635359bc",
+      "name": "Grava variável \"text\"",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Grava variável \"text\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Envia mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca equipes": {
+      "ai_tool": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transferir": {
+      "ai_tool": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Concluir": {
+      "ai_tool": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Grava variável \"text\"": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7548c486-48ad-4234-97d8-733e243a975a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "02664f1266019b28d13b187cf9e45abfd13502a00b5eebc0be24cfafb9757c49"
+  },
+  "id": "A3WJjT3nAlsfSANc",
+  "tags": []
+}
