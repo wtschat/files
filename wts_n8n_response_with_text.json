@@ -84,7 +84,7 @@
     {
       "parameters": {
         "toolDescription": "Nesta função você consegue listar as equipes disponíveis para transferência.",
-        "url": "=https://api.helena.run/core/v1/department",
+        "url": "=https://api.wts.chat/core/v1/department",
         "sendHeaders": true,
         "parametersHeaders": {
           "values": [
@@ -108,7 +108,7 @@
       "parameters": {
         "toolDescription": "Setores para transferência.\n\nAlgumas diretrizes:\n\n-Seja rápido e objetivo ao responder perguntas frequentes, buscando entender detalhadamente o problema do contato.\n-Explique de maneira simples qualquer processo técnico de baixa complexidade.\n-Demonstre paciência ao lidar com questões delicadas ou frustrações dos clientes.\n-Utilize um tom positivo e otimista, mesmo ao comunicar informações difíceis ou negativas.\n-Não solicite dados do contato como (e-mail, Id, numeros de protocolo, documentos).",
         "method": "PUT",
-        "url": "=https://api.helena.run/chat/v1/session/{{ $('Webhook').item.json.body.sessionId }}/transfer",
+        "url": "=https://api.wts.chat/chat/v1/session/{{ $('Webhook').item.json.body.sessionId }}/transfer",
         "sendHeaders": true,
         "parametersHeaders": {
           "values": [
@@ -144,7 +144,7 @@
       "parameters": {
         "toolDescription": "Função para encerrar o atendimento.",
         "method": "PUT",
-        "url": "=https://api.helena.run/chat/v1/session/{{ $('Webhook').item.json.body.sessionId }}/complete",
+        "url": "=https://api.wts.chat/chat/v1/session/{{ $('Webhook').item.json.body.sessionId }}/complete",
         "sendHeaders": true,
         "parametersHeaders": {
           "values": [
